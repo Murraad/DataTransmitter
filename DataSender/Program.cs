@@ -21,10 +21,10 @@ public static class Program
             PathManager.CreateReadFolderPath();
 
             //create clients and converter
-            client = new ServiceBusClient(Constants.ServiceBusQueueConnectionString, new ServiceBusClientOptions() { TransportType = ServiceBusTransportType.AmqpWebSockets });
+            client = new ServiceBusClient(Constants.ConnectionStrings.ServiceBusQueueConnectionString, new ServiceBusClientOptions() { TransportType = ServiceBusTransportType.AmqpWebSockets });
             sender = client.CreateSender(Constants.QueueName);
             converter = new SHA256FileConverter();
-            containerClient = new BlobContainerClient(Constants.BlobStorageConnectionString, Constants.ContainerName); 
+            containerClient = new BlobContainerClient(Constants.ConnectionStrings.BlobStorageConnectionString, Constants.ContainerName); 
 
             var directory = new DirectoryInfo(Constants.FolderReadPath);
             var files = directory.GetFiles();

@@ -19,9 +19,9 @@ public class Program
         PathManager.CreateWriteFolderPath();
 
         converter = new SHA256FileConverter();
-        client = new ServiceBusClient(Constants.ServiceBusQueueConnectionString, new ServiceBusClientOptions() { TransportType = ServiceBusTransportType.AmqpWebSockets });
+        client = new ServiceBusClient(Constants.ConnectionStrings.ServiceBusQueueConnectionString, new ServiceBusClientOptions() { TransportType = ServiceBusTransportType.AmqpWebSockets });
         httpClient = new HttpClient();
-        containerClient = new BlobContainerClient(Constants.BlobStorageConnectionString, Constants.ContainerName);
+        containerClient = new BlobContainerClient(Constants.ConnectionStrings.BlobStorageConnectionString, Constants.ContainerName);
 
         // create a processor that we can use to process the messages and set options
         // AutoCompleteMessages - false to prevent complete messages when we don't need it
