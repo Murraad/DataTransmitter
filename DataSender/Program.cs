@@ -16,8 +16,11 @@ public static class Program
         {
             Console.WriteLine("Press 'Enter' if you want to start processing");
             Console.ReadLine();
+
             //check if foler path exists
             PathManager.CreateReadFolderPath();
+
+            //create clients and converter
             client = new ServiceBusClient(Constants.ServiceBusQueueConnectionString, new ServiceBusClientOptions() { TransportType = ServiceBusTransportType.AmqpWebSockets });
             sender = client.CreateSender(Constants.QueueName);
             converter = new SHA256FileConverter();

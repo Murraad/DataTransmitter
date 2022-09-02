@@ -17,6 +17,7 @@ public class Program
     {
         //check if foler path exists
         PathManager.CreateWriteFolderPath();
+
         converter = new SHA256FileConverter();
         client = new ServiceBusClient(Constants.ServiceBusQueueConnectionString, new ServiceBusClientOptions() { TransportType = ServiceBusTransportType.AmqpWebSockets });
         httpClient = new HttpClient();
