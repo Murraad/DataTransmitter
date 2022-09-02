@@ -3,7 +3,7 @@ using Azure.Storage.Blobs;
 using DataManagement;
 using DataManagement.FileConverters;
 
-public static class Program
+public class Program
 {
     static ServiceBusClient client;
     static ServiceBusSender sender;
