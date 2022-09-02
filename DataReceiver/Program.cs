@@ -33,7 +33,7 @@ public class Program
 
         try
         {
-            Console.WriteLine("Press 'Enter' if you want to end processing");
+            Console.WriteLine("Press 'Enter' if you want to stop application.");
 
             // add handlers to process messages
             processor.ProcessMessageAsync += MessageHandler;
@@ -113,6 +113,9 @@ public class Program
         }
         else
         {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Blob Client doesn't exist. {fileName} will be deleted.");
+            Console.ForegroundColor = ConsoleColor.Gray;
             await args.DeadLetterMessageAsync(args.Message, Constants.Message.DeadLetterInvalidBlobReason);
         }
     }

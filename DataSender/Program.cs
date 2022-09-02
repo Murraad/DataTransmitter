@@ -50,7 +50,7 @@ public static class Program
     {
         try
         {
-            Console.WriteLine($"File {fileInfo.Name} starts sending data.");
+            Console.WriteLine($"Application starts sending data: {fileInfo.Name}.");
             byte[] body = File.ReadAllBytes(fileInfo.FullName);
             Header header = converter.GenerateHeaderForFile(body);
             byte[] fileBytes = converter.GetConvertedFile(converter.GetHeaderBytes<Header>(header), body);
