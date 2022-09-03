@@ -144,15 +144,13 @@ namespace DataReceiver
 
         static Task ErrorHandler(ProcessErrorEventArgs args)
         {
-            //if process server doesn't respond, we need start it and start receiver again
+            //if process server doesn't respond, we need start it
             if (args.Exception is HttpRequestException)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Process server doesn't respond. Please check it and start application again.\n" +
-                    "Please press Enter to close application.");
+                Console.WriteLine("Process server doesn't respond.\n Please check it, application will wait for a 30 seconds");
                 Console.ForegroundColor = ConsoleColor.Gray;
-                processor.StopProcessingAsync();
-                deadMessagesProcessor.StopProcessingAsync();
+                Thread.Sleep(30000);
                 return Task.CompletedTask;
             }
             Console.ForegroundColor = ConsoleColor.Red;
