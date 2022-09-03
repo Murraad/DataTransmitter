@@ -15,25 +15,24 @@ public class Program
 
     static async Task Main()
     {
-        //check if foler path exists
-        PathManager.CreateWriteFolderPath();
-
-        converter = new SHA256FileConverter();
-        client = new ServiceBusClient(Constants.ConnectionStrings.ServiceBusQueueConnectionString, new ServiceBusClientOptions() { TransportType = ServiceBusTransportType.AmqpWebSockets });
-        httpClient = new HttpClient();
-        containerClient = new BlobContainerClient(Constants.ConnectionStrings.BlobStorageConnectionString, Constants.ContainerName);
-
-        // create a processor that we can use to process the messages and set options
-        // AutoCompleteMessages - false to prevent complete messages when we don't need it
-        processor = client.CreateProcessor(Constants.QueueName, new ServiceBusProcessorOptions() { AutoCompleteMessages = false });
-
-        //create processor for dead messages
-        deadMessagesProcessor = client.CreateProcessor(Constants.QueueName, new ServiceBusProcessorOptions() { AutoCompleteMessages = false , SubQueue = SubQueue.DeadLetter});
-
-        sender = client.CreateSender(Constants.QueueName);
-
         try
         {
+            //check if foler path exists
+            PathManager.CreateWriteFolderPath();
+
+            converter = new SHA256FileConverter();
+            client = new ServiceBusClient(Constants.ConnectionStrings.ServiceBusQueueConnectionString, new ServiceBusClientOptions() { TransportType = ServiceBusTransportType.AmqpWebSockets });
+            httpClient = new HttpClient();
+            containerClient = new BlobContainerClient(Constants.ConnectionStrings.BlobStorageConnectionString, Constants.ContainerName);
+
+            // create a processor that we can use to process the messages and set options
+            // AutoCompleteMessages - false to prevent complete messages when we don't need it
+            processor = client.CreateProcessor(Constants.QueueName, new ServiceBusProcessorOptions() { AutoCompleteMessages = false });
+
+            //create processor for dead messages
+            deadMessagesProcessor = client.CreateProcessor(Constants.QueueName, new ServiceBusProcessorOptions() { AutoCompleteMessages = false, SubQueue = SubQueue.DeadLetter });
+
+            sender = client.CreateSender(Constants.QueueName);
             Console.WriteLine("Press 'Enter' if you want to stop application.");
 
             // add handlers to process messages
