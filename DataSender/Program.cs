@@ -3,6 +3,7 @@ using Azure.Storage.Blobs;
 using DataManagement;
 using DataManagement.FileConverters;
 using System.Text.Json;
+using System.Transactions;
 
 namespace DataSender
 {
@@ -58,15 +59,21 @@ namespace DataSender
         {
             try
             {
-                Console.WriteLine($"Application starts sending data: {fileInfo.Name}.");
-                byte[] body = File.ReadAllBytes(fileInfo.FullName);
-                Header header = converter.GenerateHeaderForFile(body);
-                byte[] fileBytes = converter.GetConvertedFile(converter.GetHeaderBytes<Header>(header), body);
-                string fileName = converter.GetFileName(header);
-                var res = await containerClient.UploadBlobAsync(fileName, new BinaryData(fileBytes));
-                var message = new ServiceBusMessage(fileName);
-                await sender.SendMessageAsync(message);
-                Console.WriteLine($"File {fileInfo.Name} was sent successfully.");
+                using(var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    throw new Exception();
+                    Console.WriteLine($"Application starts sending data: {fileInfo.Name}.");
+                    byte[] body = File.ReadAllBytes(fileInfo.FullName);
+                    Header header = converter.GenerateHeaderForFile(body);
+                    byte[] fileBytes = converter.GetConvertedFile(converter.GetHeaderBytes<Header>(header), body);
+                    string fileName = converter.GetFileName(header);
+                    var res = await containerClient.UploadBlobAsync(fileName, new BinaryData(fileBytes));
+                    var message = new ServiceBusMessage(fileName);
+                    await sender.SendMessageAsync(message);
+                    Console.WriteLine($"File {fileInfo.Name} was sent successfully.");
+
+                    transaction.Complete();
+                }
             }
             catch (Exception ex)
             {
