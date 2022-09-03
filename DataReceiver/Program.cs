@@ -55,6 +55,10 @@ public class Program
             await deadMessagesProcessor.StopProcessingAsync();
             Console.WriteLine("Stopped receiving messages");
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unhandled exception: {ex.GetType()}\n{ex.Message}");
+        }
         finally
         {
             await processor.DisposeAsync();
