@@ -3,7 +3,6 @@ using Azure.Storage.Blobs;
 using DataManagement;
 using DataManagement.FileConverters;
 using System.Text.Json;
-using System.Transactions;
 
 namespace DataSender
 {
@@ -43,7 +42,9 @@ namespace DataSender
             }
             catch (Exception ex)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Exception: {ex.GetType()}\n{ex.Message}");
+                Console.ForegroundColor = ConsoleColor.Gray;
             }
             finally
             {
@@ -59,25 +60,30 @@ namespace DataSender
         {
             try
             {
-                using(var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                Console.WriteLine($"Application starts sending data: {fileInfo.Name}.");
+                byte[] body = File.ReadAllBytes(fileInfo.FullName);
+                Header header = converter.GenerateHeaderForFile(body);
+                byte[] fileBytes = converter.GetConvertedFile(converter.GetHeaderBytes<Header>(header), body);
+                string fileName = converter.GetFileName(header);
+                var content = await containerClient.UploadBlobAsync(fileName, new BinaryData(fileBytes));
+                if (content != null && content.GetRawResponse().Status == 201)
                 {
-                    throw new Exception();
-                    Console.WriteLine($"Application starts sending data: {fileInfo.Name}.");
-                    byte[] body = File.ReadAllBytes(fileInfo.FullName);
-                    Header header = converter.GenerateHeaderForFile(body);
-                    byte[] fileBytes = converter.GetConvertedFile(converter.GetHeaderBytes<Header>(header), body);
-                    string fileName = converter.GetFileName(header);
-                    var res = await containerClient.UploadBlobAsync(fileName, new BinaryData(fileBytes));
                     var message = new ServiceBusMessage(fileName);
                     await sender.SendMessageAsync(message);
                     Console.WriteLine($"File {fileInfo.Name} was sent successfully.");
-
-                    transaction.Complete();
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"File {fileInfo.Name} was not uploaded and was not sent.");
+                    Console.ForegroundColor = ConsoleColor.Gray;
                 }
             }
             catch (Exception ex)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"File {fileInfo.Name} was not sent.\n{ex.Message}");
+                Console.ForegroundColor = ConsoleColor.Gray;
             }
         }
     }
