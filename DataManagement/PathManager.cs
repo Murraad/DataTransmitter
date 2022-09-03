@@ -5,8 +5,6 @@
     /// </summary>
     public static class PathManager
     {
-        private static void CreatePath(string path) => Directory.CreateDirectory(path);
-        public static void CreateReadFolderPath() => CreatePath(Constants.FolderReadPath);
-        public static void CreateWriteFolderPath() => CreatePath(Constants.FolderWritePath);
+        public static void CreatePath(string path) => Directory.CreateDirectory(path);
     }
 }
