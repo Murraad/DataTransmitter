@@ -42,21 +42,14 @@ namespace DataManagement.FileConverters
             }
         }
 
-        public Header GenerateHeaderForFile(byte[] file)
-        {
-            Header header = new Header();
-            header.Guid = Guid.NewGuid();
-            header.Timestamp = DateTime.Now;
-            header.Checksum = this.GetChecksum(file);
-            return header;
-        }
+        public Header GenerateHeaderForFile(byte[] file) => new Header() { Guid = Guid.NewGuid(), Timestamp = DateTime.Now, Checksum = this.GetChecksum(file) };
 
         public byte[] GetBodyArrayFromFile(byte[] file)
         {
             var size = Marshal.SizeOf(typeof(Header));
             if (size > file.Length)
             {
-                throw new ArgumentOutOfRangeException("Header size is longer then message body.");
+                throw new FormatException("Header size is longer then message body.");
             }
 
             var result = file.Skip(size).ToArray();
