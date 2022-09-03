@@ -7,9 +7,6 @@ namespace DataManagement.FileConverters
     /// </summary>
     public class SHA256FileConverter : AFileConverter
     {
-        public SHA256FileConverter()
-        {
-            this.hashAlgorithm = SHA256.Create();
-        }
+        protected override void InitializeAlgorithm() => this.hashAlgorithm = SHA256.Create();
     }
 }

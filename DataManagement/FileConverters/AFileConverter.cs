@@ -11,6 +11,10 @@ namespace DataManagement.FileConverters
     {
         protected HashAlgorithm hashAlgorithm;
 
+        protected abstract void InitializeAlgorithm();
+
+        public AFileConverter() => this.InitializeAlgorithm();
+
         public bool AreChecksumsEqual(byte[] firstChecksum, byte[] secondChecksum) => new Span<byte>(firstChecksum).SequenceEqual(secondChecksum);
 
         public Header DeserializeHeaderFromFile(byte[] file)
