@@ -9,11 +9,11 @@ namespace DataSender
     {
         public static async Task Main()
         {
+            IInformationLogger logger = new ConsoleInformationLogger();
             ISenderManager sender = null;
             try
             {
                 var appSettings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText("appsettings.json"));
-                IInformationLogger logger = new ConsoleInformationLogger();
                 sender = new AzureSenderManager(logger, appSettings.ServiceBusQueueConnectionString, appSettings.QueueName, appSettings.BlobStorageConnectionString, appSettings.ContainerName);
 
                 logger.LogInformation("Press 'Enter' if you want to start processing");
@@ -33,9 +33,7 @@ namespace DataSender
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Exception: {ex.GetType()}\n{ex.Message}");
-                Console.ForegroundColor = ConsoleColor.Gray;
+                logger.LogError($"Exception: {ex.GetType()}\n{ex.Message}");
             }
             finally
             {
