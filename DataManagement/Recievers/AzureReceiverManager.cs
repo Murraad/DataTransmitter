@@ -117,7 +117,6 @@ namespace DataManagement.Recievers
             }
         }
 
-
         //Resend message if checksum is valid
         async Task DeadMessageHandler(ProcessMessageEventArgs args)
         {
