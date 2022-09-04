@@ -3,11 +3,6 @@ using Azure.Storage.Blobs;
 using DataManagement;
 using DataManagement.FileConverters;
 using DataManagement.Logger;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataSender
 {
