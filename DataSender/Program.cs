@@ -2,41 +2,34 @@
 using Azure.Storage.Blobs;
 using DataManagement;
 using DataManagement.FileConverters;
+using DataManagement.Logger;
 using System.Text.Json;
 
 namespace DataSender
 {
     public class Program
     {
-        static ServiceBusClient client;
-        static ServiceBusSender sender;
-        static AFileConverter converter;
-        static BlobContainerClient containerClient;
-        static AppSettings appSettings;
-
         public static async Task Main()
         {
+            SenderManager sender = null;
             try
             {
-                appSettings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText("appsettings.json"));
-                Console.WriteLine("Press 'Enter' if you want to start processing");
+                var appSettings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText("appsettings.json"));
+                IInformationLogger logger = new ConsoleInformationLogger();
+                sender = new SenderManager(logger, appSettings.ServiceBusQueueConnectionString, appSettings.QueueName, appSettings.BlobStorageConnectionString, appSettings.ContainerName);
+
+                logger.LogInformation("Press 'Enter' if you want to start processing");
                 Console.ReadLine();
 
                 //check if foler path exists
                 PathManager.CreatePath(appSettings.FolderReadPath);
-
-                //create clients and converter
-                client = new ServiceBusClient(appSettings.ServiceBusQueueConnectionString, new ServiceBusClientOptions() { TransportType = ServiceBusTransportType.AmqpWebSockets });
-                sender = client.CreateSender(appSettings.QueueName);
-                converter = new SHA256FileConverter();
-                containerClient = new BlobContainerClient(appSettings.BlobStorageConnectionString, appSettings.ContainerName);
 
                 var directory = new DirectoryInfo(appSettings.FolderReadPath);
                 var files = directory.GetFiles();
                 List<Task> tasks = new List<Task>();
                 foreach (var fileInfo in files)
                 {
-                    tasks.Add(SendMessageAsync(fileInfo));
+                    tasks.Add(sender.SendMessageAsync(fileInfo));
                 }
                 await Task.WhenAll(tasks);
             }
@@ -48,42 +41,10 @@ namespace DataSender
             }
             finally
             {
-                await sender.DisposeAsync();
-                await client.DisposeAsync();
-                converter.Dispose();
-            }
-        }
-
-        //send file bytes to blob container
-        //send blob file name to queue
-        private static async Task SendMessageAsync(FileInfo fileInfo)
-        {
-            try
-            {
-                Console.WriteLine($"Application starts sending data: {fileInfo.Name}.");
-                byte[] body = File.ReadAllBytes(fileInfo.FullName);
-                Header header = converter.GenerateHeaderForFile(body);
-                byte[] fileBytes = converter.GetConvertedFile(converter.GetHeaderBytes<Header>(header), body);
-                string fileName = converter.GetFileName(header);
-                var content = await containerClient.UploadBlobAsync(fileName, new BinaryData(fileBytes));
-                if (content != null && content.GetRawResponse().Status == 201)
+                if(sender is not null)
                 {
-                    var message = new ServiceBusMessage(fileName);
-                    await sender.SendMessageAsync(message);
-                    Console.WriteLine($"File {fileInfo.Name} was sent successfully.");
+                    await sender.DisposeAsync();
                 }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"File {fileInfo.Name} was not uploaded and was not sent.");
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"File {fileInfo.Name} was not sent.\n{ex.Message}");
-                Console.ForegroundColor = ConsoleColor.Gray;
             }
         }
     }
