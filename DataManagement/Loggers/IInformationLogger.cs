@@ -1,4 +1,4 @@
-﻿namespace DataManagement.Logger
+﻿namespace DataManagement.Loggers
 {
     public interface IInformationLogger
     {

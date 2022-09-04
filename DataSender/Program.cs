@@ -1,5 +1,6 @@
 ﻿using DataManagement;
-using DataManagement.Logger;
+using DataManagement.Loggers;
+using DataManagement.Senders;
 using System.Text.Json;
 
 namespace DataSender
@@ -8,12 +9,12 @@ namespace DataSender
     {
         public static async Task Main()
         {
-            SenderManager sender = null;
+            ISenderManager sender = null;
             try
             {
                 var appSettings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText("appsettings.json"));
                 IInformationLogger logger = new ConsoleInformationLogger();
-                sender = new SenderManager(logger, appSettings.ServiceBusQueueConnectionString, appSettings.QueueName, appSettings.BlobStorageConnectionString, appSettings.ContainerName);
+                sender = new AzureSenderManager(logger, appSettings.ServiceBusQueueConnectionString, appSettings.QueueName, appSettings.BlobStorageConnectionString, appSettings.ContainerName);
 
                 logger.LogInformation("Press 'Enter' if you want to start processing");
                 Console.ReadLine();
@@ -26,7 +27,7 @@ namespace DataSender
                 List<Task> tasks = new List<Task>();
                 foreach (var fileInfo in files)
                 {
-                    tasks.Add(sender.SendMessageAsync(fileInfo));
+                    tasks.Add(sender.SendMessageAsync(fileInfo.Name, await File.ReadAllBytesAsync(fileInfo.FullName)));
                 }
                 await Task.WhenAll(tasks);
             }

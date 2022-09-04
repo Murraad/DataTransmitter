@@ -8,11 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.10.0" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.13.1" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DataManagement\DataManagement.csproj" />
   </ItemGroup>
 
