@@ -33,7 +33,7 @@ namespace DataManagement.Recievers
 
             // create a processor that we can use to process the messages and set options
             // AutoCompleteMessages - false to prevent complete messages when we don't need it
-            this.processor = this.client.CreateProcessor(queueName, new ServiceBusProcessorOptions() { AutoCompleteMessages = false });
+            this.processor = this.client.CreateProcessor(queueName, new ServiceBusProcessorOptions() { AutoCompleteMessages = false, MaxConcurrentCalls = 2 });
 
             //create processor for dead messages
             this.deadMessagesProcessor = this.client.CreateProcessor(queueName, new ServiceBusProcessorOptions() { AutoCompleteMessages = false, SubQueue = SubQueue.DeadLetter });
